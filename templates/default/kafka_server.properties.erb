@@ -1,0 +1,50 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+# 
+#    http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# see kafka.server.KafkaConfig for additional details and defaults
+# <% maxbytes=(@maxsize.nil? ? 20971520 : (@maxsize.to_i/8)) %>
+
+############################# Server Basics #############################
+# INFO: hostname -> <%= node.name %> 
+#########################################################################
+
+listen=*
+advertised.host.name=<%= node.name %>
+broker.id=<%= @host_index.nil? ? "?" : "#{@host_index}" %>
+port=9092
+max.socket.request.bytes=104857600
+log.dir=/tmp/kafka
+num.partitions=2
+log.default.flush.interval.ms=1000
+<% if maxbytes<536870912 %>
+log.cleanup.interval.mins=1
+<% elsif maxbytes<5368709120 %>
+log.cleanup.interval.mins=5
+<% else %>
+log.cleanup.interval.mins=10
+<% end %> 
+log.segment.bytes=<%= [ [ maxbytes/8, 1073741824 ].min, 1024 * 1024 ].max  %>
+log.retention.hours=120
+log.retention.bytes=<%= maxbytes.to_s %>
+default.replication.factor=<%= @managers_list.size <= 1 ? 1 : 2 %>
+<% if !@zk_hosts.nil? and @zk_hosts!="" %>
+zookeeper.connect=<%= @zk_hosts %>
+zookeeper.connection.timeout.ms=12000
+zookeeper.session.timeout.ms=12000
+<% else %>
+# no zk instances
+<% end %>
+auto.leader.rebalance.enable=true
+controlled.shutdown.enable=true
+auto.create.topics.enable=true

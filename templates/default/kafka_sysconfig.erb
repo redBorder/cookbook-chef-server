@@ -1,0 +1,7 @@
+MEMTOTAL=<%= @memory %>
+
+KAFKA_LOG4J_OPTS="-Dlog4j.configuration=file:/etc/kafka/log4j.properties"
+KAFKA_HEAP_OPTS="-Xmx<%= @memory %>k -Xms<%= @memory %>k"
+JMX_PORT=9093
+
+KAFKA_OPTS="-XX:OnOutOfMemoryError=/opt/rb/var/sv/kafka/kill -Dfile.encoding=UTF-8 $JMX_OPTS"
