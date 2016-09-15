@@ -6,6 +6,9 @@
 action :add do
   begin
     memory = new_resource.memory
+    chef_active = new_resource.chef_active
+    postgresql = new_resource.postgresql
+    postgresql_memory = new_resource.postgresql_memory
 
     if !File.directory?("/opt/opscode")
 
@@ -15,9 +18,24 @@ action :add do
         action :upgrade
         flush_cache [ :before ]
       end
-      output = system("/usr/bin/chef-server-ctl reconfigure &>> /root/.install-chef-server.log")
-      raise if !output
-      system("chef-server-ctl stop") 
+      configured = system("/usr/bin/chef-server-ctl reconfigure &>> /root/.install-chef-server.log")
+      if configured
+        node.default["chef-server"]["installed"] = true
+      else
+        raise
+      end
+      system("chef-server-ctl stop")
+
+#TODO: Chef services configuration (erchef, solr4, etc...)
+
+      if postgresql
+        # call to postgresql resource 
+        chef_server_postgresql "Postgresql configuration" do
+          chef_active false
+          srmode "master"
+          action :add
+        end
+      end 
 
     end
      
