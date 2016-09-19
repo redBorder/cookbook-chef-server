@@ -24,7 +24,9 @@ action :add do
         execute 'Configuring chef-server' do
           command '/usr/bin/chef-server-ctl reconfigure &>> /root/.install-chef-server.log'
         end
-
+        execute 'Stopping default private-chef-server services' do 
+          command ("chef-server-ctl graceful-kill")
+        end
         node.default["chef-server"]["installed"] = true
       end
 
