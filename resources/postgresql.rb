@@ -12,4 +12,6 @@ attribute :user, :kind_of => String, :default => "opscode-pgsql"
 attribute :group, :kind_of => String, :default => "opscode-pgsql"
 attribute :srmode, :kind_of => String, :default => "master"
 attribute :chef_active, :kind_of => [TrueClass, FalseClass], :default => false
+attribute :netsync, :kind_of => String, :default => "10.0.203.0/24"
+attribute :virtual_ip, :kind_of => String
 
