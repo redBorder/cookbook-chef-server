@@ -36,15 +36,21 @@ action :add do
       execute 'Stopping default private-chef-server services' do
         command 'chef-server-ctl stop'
       end
- 
-      
 
       node["chef-server"]["services_list"].each do |ln_file|
-        link ln_file do
+        link "/opt/opscode/service/#{ln_file}" do
           action :delete
         end
       end
      
+    end
+
+    if chef_active
+      node["chef-server"]["chef_middleware"].each do |srv|
+        service srv do
+          action :start
+        end
+      end
     end
 
 #TODO: Chef services configuration (erchef, solr4, etc...)
