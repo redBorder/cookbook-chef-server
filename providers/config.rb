@@ -44,27 +44,32 @@ action :add do
             ocbifrost_pass = db_opscode_chef["ocbifrost_pass"]
             chefmover_pass = db_opscode_chef["chefmover_pass"]
 
-            # Change erchef configuration
-            system("sed 's|{db_host,.*|{db_host, \"#{db_host}\"|' #{chef_config_path}/opscode-erchef/sys.config")
-            system("sed 's|{db_port,.*|{db_port, \"#{db_port}\"|' #{chef_config_path}/opscode-erchef/sys.config")
-            system("sed 's|{db_name,.*|{db_name, \"#{db_name}\"|' #{chef_config_path}/opscode-erchef/sys.config")
-            system("sed 's|{db_user,.*|{db_user, \"#{db_user}\"|' #{chef_config_path}/opscode-erchef/sys.config")
-            system("sed 's|{db_pass,.*|{db_pass, \"#{db_pass}\"|' #{chef_config_path}/opscode-erchef/sys.config")
+            bash 'update_chef_db' do
+              ignore_failure true
+              not_if { node["chef-server"]["slave_configured"] }
+              code <<-EOH
+                  #Change erchef database configuration
+                  sed 's|{db_host,.*|{db_host, \"#{db_host}\"|' #{chef_config_path}/opscode-erchef/sys.config
+                  sed 's|{db_port,.*|{db_port, \"#{db_port}\"|' #{chef_config_path}/opscode-erchef/sys.config
+                  sed 's|{db_name,.*|{db_name, \"#{db_name}\"|' #{chef_config_path}/opscode-erchef/sys.config
+                  sed 's|{db_user,.*|{db_user, \"#{db_user}\"|' #{chef_config_path}/opscode-erchef/sys.config
+                  sed 's|{db_pass,.*|{db_pass, \"#{db_pass}\"|' #{chef_config_path}/opscode-erchef/sys.config
+                  #Change oc_id configuration
+                  sed 's|{host:.*|{host: \"#{db_host}\"|' #{chef_config_path}/oc_id/config/database.yml
+                  sed 's|{port:.*|{port: \"#{db_port}\"|' #{chef_config_path}/oc_id/config/database.yml
+                  sed 's|{password:.*|{password: \"#{ocid_pass}\"|' #{chef_config_path}/oc_id/config/database.yml
+                  #Change oc_bifrost configuration
+                  sed 's|{db_host,.*|{db_host, \"#{db_host}\"|' #{chef_config_path}/oc_bifrost/sys.config
+                  sed 's|{db_port,.*|{db_port, \"#{db_port}\"|' #{chef_config_path}/oc_bifrost/sys.config
+                  sed 's|{db_pass,.*|{db_pass, \"#{ocbifrost_pass}\"|' #{chef_config_path}/oc_bifrost/sys.config
+                  # Change chef-mover configuration
+                  sed 's|{db_host,.*|{db_host, \"#{db_host}\"|' #{chef_config_path}/opscode-chef-mover/sys.config
+                  sed 's|{db_port,.*|{db_port, \"#{db_port}\"|' #{chef_config_path}/opscode-chef-mover/sys.config
+                  sed 's|{db_pass,.*|{db_pass, \"#{chefmover_pass}\"|' #{chef_config_path}/opscode-chef-mover/sys.config
+                EOH
+              action :run
+            end
 
-            # Change oc_id configuration
-            system("sed 's|{host:.*|{host: \"#{db_host}\"|' #{chef_config_path}/oc_id/config/database.yml")
-            system("sed 's|{port:.*|{port: \"#{db_port}\"|' #{chef_config_path}/oc_id/config/database.yml")
-            system("sed 's|{password:.*|{password: \"#{ocid_pass}\"|' #{chef_config_path}/oc_id/config/database.yml")
-
-            # Change oc_bifrost configuration
-            system("sed 's|{db_host,.*|{db_host, \"#{db_host}\"|' #{chef_config_path}/oc_bifrost/sys.config")
-            system("sed 's|{db_port,.*|{db_port, \"#{db_port}\"|' #{chef_config_path}/oc_bifrost/sys.config")
-            system("sed 's|{db_pass,.*|{db_pass, \"#{ocbifrost_pass}\"|' #{chef_config_path}/oc_bifrost/sys.config")
-
-            # Change chef-mover configuration
-            system("sed 's|{db_host,.*|{db_host, \"#{db_host}\"|' #{chef_config_path}/opscode-chef-mover/sys.config")
-            system("sed 's|{db_port,.*|{db_port, \"#{db_port}\"|' #{chef_config_path}/opscode-chef-mover/sys.config")
-            system("sed 's|{db_pass,.*|{db_pass, \"#{chefmover_pass}\"|' #{chef_config_path}/opscode-chef-mover/sys.config")
           end
           # S3 configuration
           s3_chef = Chef::DataBagItem.load("passwords", "s3_chef") rescue s3_chef = {}
@@ -75,12 +80,19 @@ action :add do
             s3_external_url = s3_chef["s3_external_url"]
             s3_platform_bucket_name = s3_chef["s3_platform_bucket_name"]
 
-            # Change erchef configuration
-            system("sed 's|{s3_access_key_id,.*|{s3_access_key_id, \"#{s3_access_key_id}\"|' #{chef_config_path}/opscode-erchef/sys.config")
-            system("sed 's|{s3_secret_key_id,.*|{s3_secret_key_id, \"#{s3_secret_key_id}\"|' #{chef_config_path}/opscode-erchef/sys.config")
-            system("sed 's|{s3_url,.*|{s3_url, \"#{s3_url}\"|' #{chef_config_path}/opscode-erchef/sys.config")
-            system("sed 's|{s3_external_url,.*|{s3_external_url, \"#{s3_external_url}\"|' #{chef_config_path}/opscode-erchef/sys.config")
-            system("sed 's|{s3_platform_bucket_name,.*|{s3_platform_bucket_name, \"#{s3_platform_bucket_name}\"|' #{chef_config_path}/opscode-erchef/sys.config")
+            bash 'update_chef_s3' do
+              ignore_failure true
+              not_if { node["chef-server"]["slave_configured"] }
+              code <<-EOH
+                 sed 's|{s3_access_key_id,.*|{s3_access_key_id, \"#{s3_access_key_id}\"|' #{chef_config_path}/opscode-erchef/sys.config
+                 sed 's|{s3_secret_key_id,.*|{s3_secret_key_id, \"#{s3_secret_key_id}\"|' #{chef_config_path}/opscode-erchef/sys.config
+                 sed 's|{s3_url,.*|{s3_url, \"#{s3_url}\"|' #{chef_config_path}/opscode-erchef/sys.config
+                 sed 's|{s3_external_url,.*|{s3_external_url, \"#{s3_external_url}\"|' #{chef_config_path}/opscode-erchef/sys.config
+                 sed 's|{s3_platform_bucket_name,.*|{s3_platform_bucket_name, \"#{s3_platform_bucket_name}\"|' #{chef_config_path}/opscode-erchef/sys.config
+                 EOH
+              action :run
+            end
+
           end
           node.default["chef-server"]["slave_configured"] = true
         end
