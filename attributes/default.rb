@@ -35,4 +35,4 @@ default["chef-server"]["services_dir"] = "/opt/opscode/service"
 
 #flags
 default["chef-server"]["installed"] = false
-default["chef-server"]["slave_configured"] = false
+default["chef-server"]["datastore_configured"] = false
