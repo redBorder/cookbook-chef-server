@@ -17,23 +17,29 @@ action :add do
 
       if !node["chef-server"]["installed"]
         Chef::Log.info("Installing chef services")
-        # install package
+        # install chef-server package
         yum_package "redborder-chef-server" do
           action :upgrade
           flush_cache [ :before ]
         end
+
+        # chef-server reconfigure
         execute 'Configuring chef-server' do
           command '/usr/bin/chef-server-ctl reconfigure &>> /root/.install-chef-server.log'
         end
+
+        # stop chef-server services
         execute 'Stopping default private-chef-server services' do
           command ("chef-server-ctl graceful-kill")
         end
+
         node.default["chef-server"]["installed"] = true
 
         #Chef server slave configuration
         if !node["chef-server"]["slave_configured"]
-          # Data base configuration
+          # Load Database configuration
           db_opscode_chef = Chef::DataBagItem.load("passwords", "db_opscode_chef") rescue db_opscode_chef = {}
+
           if !db_opscode_chef.empty?
             db_host = db_opscode_chef["hostname"]
             db_port = db_opscode_chef["port"]
@@ -46,26 +52,26 @@ action :add do
 
             bash 'update_chef_db' do
               ignore_failure true
-              not_if { node["chef-server"]["slave_configured"] }
+              #not_if { node["chef-server"]["slave_configured"] }
               code <<-EOH
                   #Change erchef database configuration
-                  sed 's|{db_host,.*|{db_host, \"#{db_host}\"|' #{chef_config_path}/opscode-erchef/sys.config
-                  sed 's|{db_port,.*|{db_port, \"#{db_port}\"|' #{chef_config_path}/opscode-erchef/sys.config
-                  sed 's|{db_name,.*|{db_name, \"#{db_name}\"|' #{chef_config_path}/opscode-erchef/sys.config
-                  sed 's|{db_user,.*|{db_user, \"#{db_user}\"|' #{chef_config_path}/opscode-erchef/sys.config
-                  sed 's|{db_pass,.*|{db_pass, \"#{db_pass}\"|' #{chef_config_path}/opscode-erchef/sys.config
+                  sed -i 's|{db_host,.*|{db_host, \"#{db_host}\"|' #{chef_config_path}/opscode-erchef/sys.config
+                  sed -i 's|{db_port,.*|{db_port, \"#{db_port}\"|' #{chef_config_path}/opscode-erchef/sys.config
+                  sed -i 's|{db_name,.*|{db_name, \"#{db_name}\"|' #{chef_config_path}/opscode-erchef/sys.config
+                  sed -i 's|{db_user,.*|{db_user, \"#{db_user}\"|' #{chef_config_path}/opscode-erchef/sys.config
+                  sed -i 's|{db_pass,.*|{db_pass, \"#{db_pass}\"|' #{chef_config_path}/opscode-erchef/sys.config
                   #Change oc_id configuration
-                  sed 's|{host:.*|{host: \"#{db_host}\"|' #{chef_config_path}/oc_id/config/database.yml
-                  sed 's|{port:.*|{port: \"#{db_port}\"|' #{chef_config_path}/oc_id/config/database.yml
-                  sed 's|{password:.*|{password: \"#{ocid_pass}\"|' #{chef_config_path}/oc_id/config/database.yml
+                  sed -i 's|{host:.*|{host: \"#{db_host}\"|' #{chef_config_path}/oc_id/config/database.yml
+                  sed -i 's|{port:.*|{port: \"#{db_port}\"|' #{chef_config_path}/oc_id/config/database.yml
+                  sed -i 's|{password:.*|{password: \"#{ocid_pass}\"|' #{chef_config_path}/oc_id/config/database.yml
                   #Change oc_bifrost configuration
-                  sed 's|{db_host,.*|{db_host, \"#{db_host}\"|' #{chef_config_path}/oc_bifrost/sys.config
-                  sed 's|{db_port,.*|{db_port, \"#{db_port}\"|' #{chef_config_path}/oc_bifrost/sys.config
-                  sed 's|{db_pass,.*|{db_pass, \"#{ocbifrost_pass}\"|' #{chef_config_path}/oc_bifrost/sys.config
+                  sed -i 's|{db_host,.*|{db_host, \"#{db_host}\"|' #{chef_config_path}/oc_bifrost/sys.config
+                  sed -i 's|{db_port,.*|{db_port, \"#{db_port}\"|' #{chef_config_path}/oc_bifrost/sys.config
+                  sed -i 's|{db_pass,.*|{db_pass, \"#{ocbifrost_pass}\"|' #{chef_config_path}/oc_bifrost/sys.config
                   # Change chef-mover configuration
-                  sed 's|{db_host,.*|{db_host, \"#{db_host}\"|' #{chef_config_path}/opscode-chef-mover/sys.config
-                  sed 's|{db_port,.*|{db_port, \"#{db_port}\"|' #{chef_config_path}/opscode-chef-mover/sys.config
-                  sed 's|{db_pass,.*|{db_pass, \"#{chefmover_pass}\"|' #{chef_config_path}/opscode-chef-mover/sys.config
+                  sed -i 's|{db_host,.*|{db_host, \"#{db_host}\"|' #{chef_config_path}/opscode-chef-mover/sys.config
+                  sed -i 's|{db_port,.*|{db_port, \"#{db_port}\"|' #{chef_config_path}/opscode-chef-mover/sys.config
+                  sed -i 's|{db_pass,.*|{db_pass, \"#{chefmover_pass}\"|' #{chef_config_path}/opscode-chef-mover/sys.config
                 EOH
               action :run
             end
@@ -82,13 +88,13 @@ action :add do
 
             bash 'update_chef_s3' do
               ignore_failure true
-              not_if { node["chef-server"]["slave_configured"] }
+              #not_if { node["chef-server"]["slave_configured"] }
               code <<-EOH
-                 sed 's|{s3_access_key_id,.*|{s3_access_key_id, \"#{s3_access_key_id}\"|' #{chef_config_path}/opscode-erchef/sys.config
-                 sed 's|{s3_secret_key_id,.*|{s3_secret_key_id, \"#{s3_secret_key_id}\"|' #{chef_config_path}/opscode-erchef/sys.config
-                 sed 's|{s3_url,.*|{s3_url, \"#{s3_url}\"|' #{chef_config_path}/opscode-erchef/sys.config
-                 sed 's|{s3_external_url,.*|{s3_external_url, \"#{s3_external_url}\"|' #{chef_config_path}/opscode-erchef/sys.config
-                 sed 's|{s3_platform_bucket_name,.*|{s3_platform_bucket_name, \"#{s3_platform_bucket_name}\"|' #{chef_config_path}/opscode-erchef/sys.config
+                 sed -i 's|{s3_access_key_id,.*|{s3_access_key_id, \"#{s3_access_key_id}\"|' #{chef_config_path}/opscode-erchef/sys.config
+                 sed -i 's|{s3_secret_key_id,.*|{s3_secret_key_id, \"#{s3_secret_key_id}\"|' #{chef_config_path}/opscode-erchef/sys.config
+                 sed -i 's|{s3_url,.*|{s3_url, \"#{s3_url}\"|' #{chef_config_path}/opscode-erchef/sys.config
+                 sed -i 's|{s3_external_url,.*|{s3_external_url, \"#{s3_external_url}\"|' #{chef_config_path}/opscode-erchef/sys.config
+                 sed -i 's|{s3_platform_bucket_name,.*|{s3_platform_bucket_name, \"#{s3_platform_bucket_name}\"|' #{chef_config_path}/opscode-erchef/sys.config
                  EOH
               action :run
             end
@@ -100,7 +106,7 @@ action :add do
     else
       node.default["chef-server"]["installed"] = true
     end
-    
+
     if !(Dir.entries(node["chef-server"]["services_dir"]) - %w{ . .. }).empty?
 
       execute 'Stopping default private-chef-server services' do
