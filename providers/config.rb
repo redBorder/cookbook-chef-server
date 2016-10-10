@@ -97,8 +97,10 @@ action :add do
           node.default["chef-server"]["slave_configured"] = true
         end
       end
-
+    else
+      node.default["chef-server"]["installed"] = true
     end
+    
     if !(Dir.entries(node["chef-server"]["services_dir"]) - %w{ . .. }).empty?
 
       execute 'Stopping default private-chef-server services' do
