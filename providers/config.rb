@@ -159,3 +159,44 @@ action :remove do
     Chef::Log.error(e.message)
   end
 end
+
+action :register do
+  begin
+    if !node["chef-server"]["registered"]
+      query = {}
+      query["ID"] = "chef-server-#{node["hostname"]}"
+      query["Name"] = "chef-server"
+      query["Address"] = "#{node["ipaddress"]}"
+      query["Port"] = 4443
+      json_query = Chef::JSONCompat.to_json(query)
+
+      execute 'Register service in consul' do
+         command "curl http://localhost:8500/v1/agent/service/register -d '#{json_query}' &>/dev/null"
+         action :nothing
+      end.run_action(:run)
+
+      node.set["chef-server"]["registered"] = true
+    end
+
+    Chef::Log.info("Chef services has been registered to consul")
+  rescue => e
+    Chef::Log.error(e.message)
+  end
+end
+
+action :deregister do
+  begin
+    if node["chef-server"]["registered"]
+      execute 'Deregister service in consul' do
+        command "curl http://localhost:8500/v1/agent/service/deregister/chef-server-#{node["hostname"]} &>/dev/null"
+        action :nothing
+      end.run_action(:run)
+
+      node.set["chef-server"]["registered"] = false
+    end
+
+    Chef::Log.info("Chef services has been deregistered to consul")
+  rescue => e
+    Chef::Log.error(e.message)
+  end
+end

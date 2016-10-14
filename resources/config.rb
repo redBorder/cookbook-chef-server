@@ -3,7 +3,7 @@
 # Resource:: config
 #
 
-actions :add, :remove
+actions :add, :remove, :register, :deregister
 default_action :add
 
 attribute :memory, :kind_of => Fixnum, :default => 524288
