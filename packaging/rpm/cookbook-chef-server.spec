@@ -20,6 +20,7 @@ Source0: %{name}-%{version}.tar.gz
 mkdir -p %{buildroot}/var/chef/cookbooks/chef-server
 cp -f -r  resources/* %{buildroot}/var/chef/cookbooks/chef-server/
 chmod -R 0755 %{buildroot}/var/chef/cookbooks/chef-server
+install -D -m 0644 README.md %{buildroot}/var/chef/cookbooks/chef-server/README.md
 
 %pre
 
@@ -28,6 +29,8 @@ chmod -R 0755 %{buildroot}/var/chef/cookbooks/chef-server
 %files
 %defattr(0755,root,root)
 /var/chef/cookbooks/chef-server
+%defattr(0644,root,root)
+/var/chef/cookbooks/chef-server/README.md
 
 %doc
 
