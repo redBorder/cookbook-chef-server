@@ -102,32 +102,33 @@ action :add do
         end
         node.default["chef-server"]["datastore_configured"] = true
       end
+
+      # Replace chef-server SV init script for systemd scripts
+      if !(Dir.entries(node["chef-server"]["services_dir"]) - %w{ . .. }).empty?
+
+        execute 'Stopping default private-chef-server services' do
+          command 'chef-server-ctl stop'
+        end
+
+        node["chef-server"]["services_list"].each do |ln_file|
+          link "/opt/opscode/service/#{ln_file}" do
+            action :delete
+          end
+        end
+
+      end
+
+      if chef_active
+        node["chef-server"]["chef_middleware"].each do |srv|
+          service srv do
+            action :start
+          end
+        end
+      end
+
     else
       node.default["chef-server"]["installed"] = true
       node.default["chef-server"]["datastore_configured"] = true
-    end
-
-    # Always executed in chef-server nodes
-    if !(Dir.entries(node["chef-server"]["services_dir"]) - %w{ . .. }).empty?
-
-      execute 'Stopping default private-chef-server services' do
-        command 'chef-server-ctl stop'
-      end
-
-      node["chef-server"]["services_list"].each do |ln_file|
-        link "/opt/opscode/service/#{ln_file}" do
-          action :delete
-        end
-      end
-
-    end
-
-    if chef_active
-      node["chef-server"]["chef_middleware"].each do |srv|
-        service srv do
-          action :start
-        end
-      end
     end
 
 #TODO: Chef services configuration (erchef, solr4, etc...)
