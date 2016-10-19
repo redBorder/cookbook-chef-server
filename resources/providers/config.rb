@@ -189,7 +189,7 @@ action :deregister do
   begin
     if node["chef-server"]["registered"]
       execute 'Deregister service in consul' do
-        command "curl http://localhost:8500/v1/agent/service/deregister/chef-server-#{node["hostname"]} &>/dev/null"
+        command "curl http://localhost:8500/v1/agent/service/deregister/erchef-#{node["hostname"]} &>/dev/null"
         action :nothing
       end.run_action(:run)
 
