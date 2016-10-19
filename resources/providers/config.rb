@@ -163,7 +163,8 @@ end
 
 action :register do
   begin
-    if !node["chef-server"]["registered"]
+    consul_servers = system('serf members -tag consul=ready | grep consul=ready &> /dev/null')
+    if !node["chef-server"]["registered"] and consul_servers
       query = {}
       query["ID"] = "erchef-#{node["hostname"]}"
       query["Name"] = "erchef"
@@ -187,7 +188,8 @@ end
 
 action :deregister do
   begin
-    if node["chef-server"]["registered"]
+    consul_servers = system('serf members -tag consul=ready | grep consul=ready &> /dev/null')
+    if node["chef-server"]["registered"] and consul_servers
       execute 'Deregister service in consul' do
         command "curl http://localhost:8500/v1/agent/service/deregister/erchef-#{node["hostname"]} &>/dev/null"
         action :nothing
