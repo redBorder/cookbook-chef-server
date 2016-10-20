@@ -22,6 +22,10 @@ action :add do
         flush_cache [ :before ]
       end
 
+      execute 'Set 4443 as chef default port' do
+        command 'echo "nginx[\'ssl_port\'] = 4443" >> /etc/opscode/chef-server.rb'
+      end
+
       # chef-server reconfigure
       execute 'Configuring chef-server' do
         command '/usr/bin/chef-server-ctl reconfigure &>> /root/.install-chef-server.log'
@@ -41,6 +45,7 @@ action :add do
         db_opscode_chef = Chef::DataBagItem.load("passwords", "db_opscode_chef") rescue db_opscode_chef = {}
 
         if !db_opscode_chef.empty?
+          Chef::Log.info("Configuring Chef-server database")
           db_host = db_opscode_chef["hostname"]
           db_port = db_opscode_chef["port"]
           db_name = db_opscode_chef["database"]
@@ -75,11 +80,12 @@ action :add do
               EOH
             action :run
           end
-
         end
+
         # S3 configuration
         s3_chef = Chef::DataBagItem.load("passwords", "s3_chef") rescue s3_chef = {}
         if !s3_chef.empty?
+          Chef::Log.info("Configuring Chef-server cookbook storage")
           s3_access_key_id = s3_chef["s3_access_key_id"]
           s3_secret_key_id = s3_chef["s3_secret_key_id"]
           s3_url= s3_chef["s3_url"]
@@ -98,24 +104,22 @@ action :add do
                EOH
             action :run
           end
-
         end
+
         node.default["chef-server"]["datastore_configured"] = true
       end
 
       # Replace chef-server SV init script for systemd scripts
-      if !(Dir.entries(node["chef-server"]["services_dir"]) - %w{ . .. }).empty?
+      # Stop current services
+      execute 'Stopping default private-chef-server services' do
+        command 'chef-server-ctl stop'
+      end
 
-        execute 'Stopping default private-chef-server services' do
-          command 'chef-server-ctl stop'
+      # Delete symbolic links of chef-server SV scripts
+      node["chef-server"]["services_list"].each do |ln_file|
+        link "/opt/opscode/service/#{ln_file}" do
+          action :delete
         end
-
-        node["chef-server"]["services_list"].each do |ln_file|
-          link "/opt/opscode/service/#{ln_file}" do
-            action :delete
-          end
-        end
-
       end
 
       if chef_active
@@ -123,9 +127,12 @@ action :add do
           service srv do
             action :start
           end
+          # chef-services restart required
+          execute "Restart chef-server services" do
+            command 'for i in `ls /opt/opscode/sv`;do systemctl restart $i;done'
+          end
         end
       end
-
     else
       node.default["chef-server"]["installed"] = true
       node.default["chef-server"]["datastore_configured"] = true
@@ -145,7 +152,7 @@ action :add do
       end
     end
 
-    Chef::Log.info("Chef services has been configurated correctly.")
+    Chef::Log.info("Chef-server cookbook has been processed")
   rescue => e
     Chef::Log.error(e.message)
   end
@@ -153,9 +160,8 @@ end
 
 action :remove do
   begin
-    logdir = new_resource.logdir
-
-    Chef::Log.info("Chef services has been deleted correctly.")
+    # TODO
+    Chef::Log.info("Chef-server cookbook has been processed")
   rescue => e
     Chef::Log.error(e.message)
   end
@@ -178,9 +184,8 @@ action :register do
       end.run_action(:run)
 
       node.set["chef-server"]["registered"] = true
+      Chef::Log.info("Chef services has been registered to consul")
     end
-
-    Chef::Log.info("Chef services has been registered to consul")
   rescue => e
     Chef::Log.error(e.message)
   end
@@ -196,9 +201,8 @@ action :deregister do
       end.run_action(:run)
 
       node.set["chef-server"]["registered"] = false
+      Chef::Log.info("Chef services has been deregistered to consul")
     end
-
-    Chef::Log.info("Chef services has been deregistered to consul")
   rescue => e
     Chef::Log.error(e.message)
   end
