@@ -83,14 +83,14 @@ action :add do
         end
 
         # S3 configuration
-        s3_chef = Chef::DataBagItem.load("passwords", "s3_chef") rescue s3_chef = {}
+        s3_chef = Chef::DataBagItem.load("passwords", "s3") rescue s3_chef = {}
         if !s3_chef.empty?
           Chef::Log.info("Configuring Chef-server cookbook storage")
           s3_access_key_id = s3_chef["s3_access_key_id"]
           s3_secret_key_id = s3_chef["s3_secret_key_id"]
           s3_url= s3_chef["s3_url"]
           s3_external_url = s3_chef["s3_external_url"]
-          s3_platform_bucket_name = s3_chef["s3_platform_bucket_name"]
+          s3_bucket = s3_chef["s3_bucket"]
 
           bash 'update_chef_s3' do
             ignore_failure true
@@ -100,7 +100,7 @@ action :add do
                sed -i 's|{s3_secret_key_id,.*|{s3_secret_key_id, \"#{s3_secret_key_id}\"},|' #{chef_config_path}/opscode-erchef/sys.config
                sed -i 's|{s3_url,.*|{s3_url, \"#{s3_url}\"},|' #{chef_config_path}/opscode-erchef/sys.config
                sed -i 's|{s3_external_url,.*|{s3_external_url, \"#{s3_external_url}\"},|' #{chef_config_path}/opscode-erchef/sys.config
-               sed -i 's|{s3_platform_bucket_name,.*|{s3_platform_bucket_name, \"#{s3_platform_bucket_name}\"},|' #{chef_config_path}/opscode-erchef/sys.config
+               sed -i 's|{s3_platform_bucket_name,.*|{s3_platform_bucket_name, \"#{s3_bucket}\"},|' #{chef_config_path}/opscode-erchef/sys.config
                EOH
             action :run
           end
