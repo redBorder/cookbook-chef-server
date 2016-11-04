@@ -123,7 +123,7 @@ action :add do
       end
 
       if chef_active
-        node["chef-server"]["service_list"].each do |srv|
+        node["chef-server"]["chef_middleware"].each do |srv|
           if srv.include? "opscode"
             service srv do
               action :start
