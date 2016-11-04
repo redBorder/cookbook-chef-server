@@ -21,7 +21,7 @@ action :add do
 #      mode 0644
 #      cookbook "chef-server"
 #      variables(:memory => memory)
-#      notifies :restart, "service[postgresql]", :delayed 
+#      notifies :restart, "service[postgresql]", :delayed
 #      notifies :reload, "service[opscode-erchef]", :delayed if chef_active
 #    end
 
@@ -32,23 +32,23 @@ action :add do
 #      mode 0644
 #      cookbook "chef-server"
 #      variables(:netsync => netsync, :virtual => virtual_ip)
-#      notifies :restart, "service[postgresql]", :delayed 
+#      notifies :restart, "service[postgresql]", :delayed
 #      notifies :reload, "service[opscode-erchef]", :delayed if chef_active
 #    end
 
 
    # if srmode == "master"
-   #   
+   #
    # else
 
-   # end 
-    
-    service "postgresql" do
-      service_name "postgresql"
+   # end
+
+    service "opscode-postgresql" do
+      service_name "opscode-postgresql"
       supports :status => true, :reload => true, :restart => true, :start => true, :enable => true
       action [:enable, :start]
     end
- 
+
     Chef::Log.info("Chef services has been configurated correctly.")
   rescue => e
     Chef::Log.error(e)
@@ -57,11 +57,10 @@ end
 
 action :remove do
   begin
-    logdir = new_resource.logdir
+    #logdir = new_resource.logdir
 
     Chef::Log.info("Chef services has been deleted correctly.")
   rescue => e
     Chef::Log.error(e)
   end
 end
-

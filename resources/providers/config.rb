@@ -123,14 +123,20 @@ action :add do
       end
 
       if chef_active
-        node["chef-server"]["chef_middleware"].each do |srv|
-          service srv do
-            action :start
+        node["chef-server"]["service_list"].each do |srv|
+          if srv.include? "opscode"
+            service srv do
+              action :start
+            end
+          else
+            service "opscode-#{srv}" do
+              action :start
+            end
           end
-          # chef-services restart required
-          execute "Restart chef-server services" do
-            command 'for i in `ls /opt/opscode/sv`;do systemctl restart $i;done'
-          end
+        end
+        # chef-services restart required
+        execute "Restart chef-server services" do
+          command 'for i in `s /opt/opscode/sv/ | sed "s/opscode-//g"`;do systemctl restart opscode-$i;done'
         end
       end
     else
