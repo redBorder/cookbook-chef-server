@@ -89,7 +89,6 @@ action :add do
           s3_access_key_id = s3_chef["s3_access_key_id"]
           s3_secret_key_id = s3_chef["s3_secret_key_id"]
           s3_url= s3_chef["s3_url"]
-          s3_external_url = s3_chef["s3_external_url"]
           s3_bucket = s3_chef["s3_bucket"]
 
           bash 'update_chef_s3' do
@@ -99,7 +98,7 @@ action :add do
                sed -i 's|{s3_access_key_id,.*|{s3_access_key_id, \"#{s3_access_key_id}\"},|' #{chef_config_path}/opscode-erchef/sys.config
                sed -i 's|{s3_secret_key_id,.*|{s3_secret_key_id, \"#{s3_secret_key_id}\"},|' #{chef_config_path}/opscode-erchef/sys.config
                sed -i 's|{s3_url,.*|{s3_url, \"#{s3_url}\"},|' #{chef_config_path}/opscode-erchef/sys.config
-               sed -i 's|{s3_external_url,.*|{s3_external_url, \"#{s3_external_url}\"},|' #{chef_config_path}/opscode-erchef/sys.config
+               sed -i 's|{s3_external_url,.*|{s3_external_url, \"#{s3_url}\"},|' #{chef_config_path}/opscode-erchef/sys.config
                sed -i 's|{s3_platform_bucket_name,.*|{s3_platform_bucket_name, \"#{s3_bucket}\"},|' #{chef_config_path}/opscode-erchef/sys.config
                EOH
             action :run
