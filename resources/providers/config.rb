@@ -22,8 +22,12 @@ action :add do
         flush_cache [ :before ]
       end
 
-      execute 'Set 4443 as chef default port' do
+      execute 'Set 4443 as chef proxy SSL default port' do
         command 'echo "nginx[\'ssl_port\'] = 4443" >> /etc/opscode/chef-server.rb'
+      end
+
+      execute 'Set 4080 as chef proxy non SSL default port' do
+        command 'echo "nginx[\'non_ssl_port\'] = 4080" >> /etc/opscode/chef-server.rb'
       end
 
       # chef-server reconfigure
