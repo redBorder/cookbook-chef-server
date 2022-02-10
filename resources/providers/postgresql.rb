@@ -43,11 +43,11 @@ action :add do
 
    # end
 
-    service "opscode-postgresql" do
-      service_name "opscode-postgresql"
-      supports :status => true, :reload => true, :restart => true, :start => true, :enable => true
-      action [:enable, :start]
-    end
+    # service "opscode-postgresql" do
+    #   service_name "opscode-postgresql"
+    #   supports :status => true, :reload => true, :restart => true, :start => true, :enable => true
+    #   action [:enable, :start]
+    # end
 
     Chef::Log.info("Chef services has been configurated correctly.")
   rescue => e
