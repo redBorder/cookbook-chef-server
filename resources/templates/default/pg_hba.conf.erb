@@ -9,17 +9,20 @@ host    opscode_chef    opscode_chef    <%= @netsync %>         trust
 host    oozie           oozie           <%= @netsync %>         trust
 host    druid           druid           <%= @netsync %>         trust
 host    redborder       redborder       <%= @netsync %>         trust
+host    radius          radius          <%= @netsync %>         trust
 <% if !@virtual.nil? and @virtual!="" %>
 host    opscode_chef    opscode_chef    <%= @virtual %>/32      trust
 host    oozie           oozie           <%= @virtual %>/32      trust
 host    druid           druid           <%= @virtual %>/32      trust
 host    redborder       redborder       <%= @virtual %>/32      trust
+host    radius          radius          <%= @virtual %>/32      trust
 <% end %>
 <% if !node["redborder"]["manager"].nil? and !node["redborder"]["manager"]["database"].nil? and !node["redborder"]["manager"]["database"]["grant"].nil? %>
 <% node["redborder"]["manager"]["database"]["grant"].each do |x| %>
 <% if x["network"] != @netsync and x["network"] != "127.0.0.1/32" %>
 host    druid           druid           <%= x["network"] %>     <%= x["mode"] %>
 host    redborder       redborder       <%= x["network"] %>     <%= x["mode"] %>
+host    radius          radius          <%= x["network"] %>     <%= x["mode"] %>
 <% end %>
 <% end %>
 <% end %>

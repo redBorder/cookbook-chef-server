@@ -188,7 +188,7 @@ action :register do
       json_query = Chef::JSONCompat.to_json(query)
 
       execute 'Register service in consul' do
-         command "curl http://localhost:8500/v1/agent/service/register -d '#{json_query}' &>/dev/null"
+         command "curl -X PUT http://localhost:8500/v1/agent/service/register -d '#{json_query}' &>/dev/null"
          action :nothing
       end.run_action(:run)
 
@@ -205,7 +205,7 @@ action :deregister do
     consul_servers = system('serf members -tag consul=ready | grep consul=ready &> /dev/null')
     if node["chef-server"]["registered"] and consul_servers
       execute 'Deregister service in consul' do
-        command "curl http://localhost:8500/v1/agent/service/deregister/erchef-#{node["hostname"]} &>/dev/null"
+        command "curl -X PUT http://localhost:8500/v1/agent/service/deregister/erchef-#{node["hostname"]} &>/dev/null"
         action :nothing
       end.run_action(:run)
 
