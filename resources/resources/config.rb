@@ -7,6 +7,8 @@ actions :add, :remove, :register, :deregister
 default_action :add
 
 attribute :memory, :kind_of => Fixnum, :default => 524288
+attribute :rabbitmq, :kind_of => [TrueClass, FalseClass], :default => true
+attribute :rabbitmq_memory, :kind_of => Fixnum, :default => 524288
 attribute :postgresql, :kind_of => [TrueClass, FalseClass], :default => true
 attribute :postgresql_memory, :kind_of => Fixnum, :default => 524288
 attribute :postgresql_vip, :kind_of => String

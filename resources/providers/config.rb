@@ -30,6 +30,14 @@ action :add do
         command 'echo "nginx[\'non_ssl_port\'] = 4080" >> /etc/opscode/chef-server.rb'
       end
 
+      if rabbitmq
+        # call to rabbitmq resource
+        chef_server_rabbitmq "Rabbitmq configuration" do
+          memory rabbitmq_memory
+          action :add
+        end
+      end
+
       # chef-server reconfigure
       execute 'Configuring chef-server' do
         command '/usr/bin/chef-server-ctl reconfigure &>> /root/.install-chef-server.log'
@@ -148,18 +156,18 @@ action :add do
     end
 
 #TODO: Chef services configuration (erchef, solr4, etc...)
-
-    if postgresql
-      # call to postgresql resource
-      chef_server_postgresql "Postgresql configuration" do
-        memory postgresql_memory
-        chef_active false
-        srmode "master"
-        netsync netsync
-        virtual_ip postgresql_vip
-        action :add
-      end
-    end
+    
+    #if postgresql
+    #  # call to postgresql resource
+    #  chef_server_postgresql "Postgresql configuration" do
+    #    memory postgresql_memory
+    #    chef_active false
+    #    srmode "master"
+    #    netsync netsync
+    #    virtual_ip postgresql_vip
+    #    action :add
+    #  end
+    #end
 
     Chef::Log.info("Chef-server cookbook has been processed")
   rescue => e
