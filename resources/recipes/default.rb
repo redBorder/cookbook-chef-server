@@ -6,6 +6,3 @@
 #
 # AFFERO GENERAL PUBLIC LICENSE V3 
 #
-
-
-

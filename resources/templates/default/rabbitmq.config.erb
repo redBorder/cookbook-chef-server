@@ -1,0 +1,8 @@
+[
+{
+rabbit,[
+{vm_memory_high_watermark, <%= "%0.4f" % [(@memory.to_i / node["memory"]["total"].to_f).to_f, 0.01].max %>},
+{log_levels,[{channel, debug},{connection, debug},{federation, debug},{mirroring, debug}]}
+]
+}
+].
