@@ -8,6 +8,7 @@ action :add do
     memory = new_resource.memory
     chef_active = new_resource.chef_active
     rabbitmq = new_resource.rabbitmq
+    rabbitmq_memory = new_resource.rabbitmq_memory
     postgresql = new_resource.postgresql
     postgresql_memory = new_resource.postgresql_memory
     postgresql_vip = new_resource.postgresql_vip
