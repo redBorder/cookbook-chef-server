@@ -10,8 +10,17 @@ action :add do
     user = new_resource.user
     group = new_resource.group
 
+    template "#{datadir}/rabbitmq.config" do
+      source "rabbitmq.config.erb"
+      owner user
+      group group
+      mode 0644
+      cookbook "chef-server"
+      variables(:memory => memory)
+    end
+
     template "#{datadir}/rabbitmq.conf" do
-      source "rabbitmq"
+      source "rabbitmq.conf.erb"
       owner user
       group group
       mode 0644

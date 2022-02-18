@@ -30,12 +30,22 @@ action :add do
         command 'echo "nginx[\'non_ssl_port\'] = 4080" >> /etc/opscode/chef-server.rb'
       end
 
-      if rabbitmq
-        # call to rabbitmq resource
-        chef_server_rabbitmq "Rabbitmq configuration" do
-          memory rabbitmq_memory
-          action :add
-        end
+      # Modifying some default chef parameters (rabbitmq, postgresql) ## Check
+      # Rabbitmq # CHECK CHECK CHECK
+      execute 'Configuring rabbitmq node name' do
+        command 'sed -i "s/rabbit@localhost/rabbit@$(hostname -s)/" /opt/opscode/embedded/cookbooks/private-chef/attributes/default.rb'
+      end
+
+      execute 'Creating rabbitmq db directory' do
+        command 'mkdir -p /var/opt/opscode/rabbitmq/db'
+      end
+
+      execute 'Deleting rabbit@localhost.pid file' do
+        command 'rm -f /var/opt/opscode/rabbitmq/db/rabbit@localhost.pid'
+      end
+
+      execute 'Creating rabbitmq pid softlink' do
+        command 'ln -s /var/opt/opscode/rabbitmq/db/rabbit\@$(hostname -s).pid /var/opt/opscode/rabbitmq/db/rabbit@localhost.pid'
       end
 
       # chef-server reconfigure
