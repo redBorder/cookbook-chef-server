@@ -6,11 +6,12 @@
 action :add do
   begin
     memory = new_resource.memory
-    datadir = new_resource.datadir
+    config_dir = new_resource.config_dir
+    chef_active = new_resource.chef_active
     user = new_resource.user
     group = new_resource.group
 
-    template "#{datadir}/rabbitmq.config" do
+    template "#{config_dir}/rabbitmq.config" do
       source "rabbitmq.config.erb"
       owner user
       group group
@@ -19,7 +20,7 @@ action :add do
       variables(:memory => memory)
     end
 
-    template "#{datadir}/rabbitmq.conf" do
+    template "#{config_dir}/rabbitmq.conf" do
       source "rabbitmq.conf.erb"
       owner user
       group group
@@ -27,8 +28,8 @@ action :add do
       cookbook "chef-server"
       variables(:memory => memory)
       notifies :restart, "service[opscode-rabbitmq]", :delayed
-      notifies :reload, "service[opscode-erchef]", :delayed
-    end
+      notifies :reload, "service[opscode-erchef]", :delayed if chef_active
+    end 
 
     Chef::Log.info("Chef services has been configurated correctly.")
   rescue => e

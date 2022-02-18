@@ -14,40 +14,40 @@ action :add do
     netsync = new_resource.netsync
     virtual_ip = new_resource.virtual_ip
 
-#    template "#{datadir}/postgresql.conf" do
-#      source "postgresql.conf.erb"
-#      owner user
-#     group group
-#      mode 0644
-#      cookbook "chef-server"
-#      variables(:memory => memory)
-#      notifies :restart, "service[postgresql]", :delayed
-#      notifies :reload, "service[opscode-erchef]", :delayed if chef_active
-#    end
+   template "#{datadir}/postgresql.conf" do
+     source "postgresql.conf.erb"
+     owner user
+     group group
+     mode 0644
+     cookbook "chef-server"
+     variables(:memory => memory)
+     notifies :restart, "service[postgresql]", :delayed
+     notifies :reload, "service[opscode-erchef]", :delayed if chef_active
+   end
 
-#    template "#{datadir}/pg_hba.conf" do
-#      source "pg_hba.conf.erb"
-#      owner user
-#      group group
-#      mode 0644
-#      cookbook "chef-server"
-#      variables(:netsync => netsync, :virtual => virtual_ip)
-#      notifies :restart, "service[postgresql]", :delayed
-#      notifies :reload, "service[opscode-erchef]", :delayed if chef_active
-#    end
+   template "#{datadir}/pg_hba.conf" do
+     source "pg_hba.conf.erb"
+     owner user
+     group group
+     mode 0644
+     cookbook "chef-server"
+     variables(:netsync => netsync, :virtual => virtual_ip)
+     notifies :restart, "service[postgresql]", :delayed
+     notifies :reload, "service[opscode-erchef]", :delayed if chef_active
+   end
 
 
-   # if srmode == "master"
-   #
-   # else
+   if srmode == "master"
+   
+   else
 
-   # end
+   end
 
-    # service "opscode-postgresql" do
-    #   service_name "opscode-postgresql"
-    #   supports :status => true, :reload => true, :restart => true, :start => true, :enable => true
-    #   action [:enable, :start]
-    # end
+    service "opscode-postgresql" do
+      service_name "opscode-postgresql"
+      supports :status => true, :reload => true, :restart => true, :start => true, :enable => true
+      action [:enable, :start]
+    end
 
     Chef::Log.info("Chef services has been configurated correctly.")
   rescue => e

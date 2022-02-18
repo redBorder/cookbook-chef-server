@@ -167,20 +167,20 @@ action :add do
 
 #TODO: Chef services configuration (erchef, solr4, etc...)
     
-    #if postgresql
-    #  # call to postgresql resource
-    #  chef_server_postgresql "Postgresql configuration" do
-    #    memory postgresql_memory
-    #    chef_active false
-    #    srmode "master"
-    #    netsync netsync
-    #    virtual_ip postgresql_vip
-    #    action :add
-    #  end
-    #end
+    if postgresql
+     # call to postgresql resource
+     chef_server_postgresql "Postgresql configuration" do
+       memory postgresql_memory
+       chef_active false
+       srmode "master"
+       netsync netsync
+       virtual_ip postgresql_vip
+       action :add
+     end
+    end
 
     if rabbitmq
-      # call to postgresql resource
+      # call to rabbitmq resource
       chef_server_rabbitmq "Rabbitmq configuration" do
         memory rabbitmq_memory
         action :add
