@@ -7,6 +7,8 @@ action :add do
   begin
     memory = new_resource.memory
     chef_active = new_resource.chef_active
+    rabbitmq = new_resource.rabbitmq
+    rabbitmq_memory = new_resource.rabbitmq_memory
     postgresql = new_resource.postgresql
     postgresql_memory = new_resource.postgresql_memory
     postgresql_vip = new_resource.postgresql_vip
@@ -28,6 +30,24 @@ action :add do
 
       execute 'Set 4080 as chef proxy non SSL default port' do
         command 'echo "nginx[\'non_ssl_port\'] = 4080" >> /etc/opscode/chef-server.rb'
+      end
+
+      # Modifying some default chef parameters (rabbitmq, postgresql) ## Check
+      # Rabbitmq # CHECK CHECK CHECK
+      execute 'Configuring rabbitmq node name' do
+        command 'sed -i "s/rabbit@localhost/rabbit@$(hostname -s)/" /opt/opscode/embedded/cookbooks/private-chef/attributes/default.rb'
+      end
+
+      execute 'Creating rabbitmq db directory' do
+        command 'mkdir -p /var/opt/opscode/rabbitmq/db'
+      end
+
+      execute 'Deleting rabbit@localhost.pid file' do
+        command 'rm -f /var/opt/opscode/rabbitmq/db/rabbit@localhost.pid'
+      end
+
+      execute 'Creating rabbitmq pid softlink' do
+        command 'ln -s /var/opt/opscode/rabbitmq/db/rabbit\@$(hostname -s).pid /var/opt/opscode/rabbitmq/db/rabbit@localhost.pid'
       end
 
       # chef-server reconfigure
@@ -148,15 +168,23 @@ action :add do
     end
 
 #TODO: Chef services configuration (erchef, solr4, etc...)
-
+    
     if postgresql
-      # call to postgresql resource
-      chef_server_postgresql "Postgresql configuration" do
-        memory postgresql_memory
-        chef_active false
-        srmode "master"
-        netsync netsync
-        virtual_ip postgresql_vip
+     # call to postgresql resource
+     chef_server_postgresql "Postgresql configuration" do
+       memory postgresql_memory
+       chef_active false
+       srmode "master"
+       netsync netsync
+       virtual_ip postgresql_vip
+       action :add
+     end
+    end
+
+    if rabbitmq
+      # call to rabbitmq resource
+      chef_server_rabbitmq "Rabbitmq configuration" do
+        memory rabbitmq_memory
         action :add
       end
     end
