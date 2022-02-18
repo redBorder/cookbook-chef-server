@@ -179,6 +179,14 @@ action :add do
     #  end
     #end
 
+    if rabbitmq
+      # call to postgresql resource
+      chef_server_rabbitmq "Rabbitmq configuration" do
+        memory rabbitmq_memory
+        action :add
+      end
+    end
+
     Chef::Log.info("Chef-server cookbook has been processed")
   rescue => e
     Chef::Log.error(e.message)
