@@ -31,6 +31,12 @@ action :add do
       notifies :reload, "service[opscode-erchef]", :delayed if chef_active
     end 
 
+    service "opscode-rabbitmq" do
+      service_name "opscode-rabbitmq"
+      supports :status => true, :reload => true, :restart => true, :start => true, :enable => true
+      action [:enable, :start]
+    end
+
     Chef::Log.info("Chef services has been configurated correctly.")
   rescue => e
     Chef::Log.error(e)
