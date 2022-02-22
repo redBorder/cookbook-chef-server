@@ -158,12 +158,12 @@ action :add do
           end
         end
         if postgresql
-        # chef-services restart required (with opscode-postgresql)
-        execute "Restart chef-server services" do
-          command 'for i in `ls /opt/opscode/sv/ | sed "s/opscode-//g"`;do systemctl restart opscode-$i;done'
-        end
+          # chef-services restart required (with opscode-postgresql)
+          execute "Restart chef-server services" do
+            command 'for i in `ls /opt/opscode/sv/ | sed "s/opscode-//g"`;do systemctl restart opscode-$i;done'
+          end
         else
-          # chef-services restart required (whithout opscode-postgresql)
+          # chef-services restart required (without opscode-postgresql)
           execute "Restart chef-server services" do
             command 'for i in `ls /opt/opscode/sv/ | sed "s/opscode-//g | grep -v postgresql"`;do systemctl restart opscode-$i;done'
           end
