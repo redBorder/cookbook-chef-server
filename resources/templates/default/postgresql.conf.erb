@@ -36,10 +36,10 @@ lc_time = 'en_US.UTF-8'                 # locale for time formatting
 max_standby_archive_delay = 60000
 max_standby_streaming_delay = 60000
 
-checkpoint_segments = 16
+#checkpoint_segments = 16
 wal_level = hot_standby
 archive_mode = on
 archive_command = 'cd .'
 max_wal_senders = 100    
-wal_keep_segments = 32
+#wal_keep_segments = 32
 hot_standby = on
