@@ -19,7 +19,7 @@ action :add do
 
       Chef::Log.info("Installing chef services")
       # install chef-server package
-      yum_package "redborder-chef-server" do
+      dnf_package "redborder-chef-server" do
         action :upgrade
         flush_cache [ :before ]
       end
