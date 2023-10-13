@@ -7,7 +7,8 @@ default["chef-server"]["chef_middleware"] = [
                                         "oc_bifrost",
                                         "oc_id",
                                         "opscode-erchef",
-                                        "redis_lb"
+                                        "redis_lb",
+                                        "opensearch"
                                       ]
 
 
@@ -20,7 +21,8 @@ default["chef-server"]["services_list"] = [
                                             "oc_bifrost",
                                             "oc_id",
                                             "opscode-erchef",
-                                            "redis_lb"
+                                            "redis_lb",
+                                            "opensearch"
                                           ]
 
 default["chef-server"]["services_dir"] = "/opt/opscode/service"
