@@ -199,7 +199,7 @@ action :register do
          action :nothing
       end.run_action(:run)
 
-      node.set["chef-server"]["registered"] = true
+      node.default["chef-server"]["registered"] = true
       Chef::Log.info("Chef services has been registered to consul")
     end
   rescue => e
@@ -216,7 +216,7 @@ action :deregister do
         action :nothing
       end.run_action(:run)
 
-      node.set["chef-server"]["registered"] = false
+      node.default["chef-server"]["registered"] = false
       Chef::Log.info("Chef services has been deregistered to consul")
     end
   rescue => e
