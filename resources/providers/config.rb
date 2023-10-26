@@ -40,6 +40,10 @@ action :add do
         command ("chef-server-ctl graceful-kill")
       end
 
+      link "/root/chef" do
+        to "/var/chef"
+      end
+
       # Chef-server installation finished
       node.default["chef-server"]["installed"] = true
 
