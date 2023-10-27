@@ -13,6 +13,11 @@ action :add do
     netsync = new_resource.netsync
     chef_config_path = new_resource.chef_config_path
 
+    link "/root/chef" do
+      to "/var/chef"
+      action ::File.directory?("/var/chef") ? :create : :delete
+    end
+
     if !::File.directory?("/opt/opscode") and !node["chef-server"]["installed"] #Only executed if it's a custom node with chef-server
 
       Chef::Log.info("Installing chef services")
@@ -38,10 +43,6 @@ action :add do
       # stop chef-server services
       execute 'Stopping default private-chef-server services' do
         command ("chef-server-ctl graceful-kill")
-      end
-
-      link "/root/chef" do
-        to "/var/chef"
       end
 
       # Chef-server installation finished
