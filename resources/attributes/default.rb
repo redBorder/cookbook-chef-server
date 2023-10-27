@@ -6,12 +6,9 @@ default["chef-server"]["chef_middleware"] = [
                                         "bookshelf",
                                         "oc_bifrost",
                                         "oc_id",
-                                        "opscode-chef-mover",
                                         "opscode-erchef",
-                                        "opscode-expander",
-                                        "opscode-solr4",
-                                        "rabbitmq",
-                                        "redis_lb"
+                                        "redis_lb",
+                                        "opensearch"
                                       ]
 
 
@@ -23,12 +20,9 @@ default["chef-server"]["services_list"] = [
                                             "bookshelf",
                                             "oc_bifrost",
                                             "oc_id",
-                                            "opscode-chef-mover",
                                             "opscode-erchef",
-                                            "opscode-expander",
-                                            "opscode-solr4",
-                                            "rabbitmq",
-                                            "redis_lb"
+                                            "redis_lb",
+                                            "opensearch"
                                           ]
 
 default["chef-server"]["services_dir"] = "/opt/opscode/service"
