@@ -12,6 +12,7 @@ action :add do
     postgresql_vip = new_resource.postgresql_vip
     netsync = new_resource.netsync
     chef_config_path = new_resource.chef_config_path
+    ipaddress = new_resource.ipaddress
 
     link "/root/chef" do
       to "/var/chef"
@@ -190,12 +191,13 @@ end
 
 action :register do
   begin
+    ipaddress = new_resource.ipaddress
     consul_servers = system('serf members -tag consul=ready | grep consul=ready &> /dev/null')
     if !node["chef-server"]["registered"] and consul_servers
       query = {}
       query["ID"] = "erchef-#{node["hostname"]}"
       query["Name"] = "erchef"
-      query["Address"] = "#{node["ipaddress"]}"
+      query["Address"] = ipaddress
       query["Port"] = 4443
       json_query = Chef::JSONCompat.to_json(query)
 
