@@ -12,6 +12,7 @@ action :add do
     postgresql_vip = new_resource.postgresql_vip
     netsync = new_resource.netsync
     chef_config_path = new_resource.chef_config_path
+    ip = new_resource.ip
 
     link "/root/chef" do
       to "/var/chef"
@@ -195,7 +196,7 @@ action :register do
       query = {}
       query["ID"] = "erchef-#{node["hostname"]}"
       query["Name"] = "erchef"
-      query["Address"] = "#{node["ipaddress"]}"
+      query["Address"] = ip
       query["Port"] = 4443
       json_query = Chef::JSONCompat.to_json(query)
 
