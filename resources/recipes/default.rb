@@ -1,8 +1,4 @@
-#
-# Cookbook Name:: chef-server
+# Cookbook:: chef-server
 # Recipe:: default
-#
-# Copyright 2016, redborder
-#
-# AFFERO GENERAL PUBLIC LICENSE V3 
-#
+# Copyright:: 2024, redborder
+# License:: Affero General Public License, Version 3
