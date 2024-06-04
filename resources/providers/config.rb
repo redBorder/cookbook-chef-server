@@ -1,29 +1,26 @@
-# Cookbook Name:: Chef-server
-#
+# Cookbook:: Chef-server
 # Provider:: chef
-#
 
 action :add do
   begin
-    memory = new_resource.memory
     chef_active = new_resource.chef_active
     postgresql = new_resource.postgresql
     postgresql_memory = new_resource.postgresql_memory
     postgresql_vip = new_resource.postgresql_vip
     netsync = new_resource.netsync
     chef_config_path = new_resource.chef_config_path
-    ipaddress = new_resource.ipaddress
 
-    link "/root/chef" do
-      to "/var/chef"
-      action ::File.directory?("/var/chef") ? :create : :delete
+    link '/root/chef' do
+      to '/var/chef'
+      action ::File.directory?('/var/chef') ? :create : :delete
     end
 
-    if !::File.directory?("/opt/opscode") and !node["chef-server"]["installed"] #Only executed if it's a custom node with chef-server
+    # Only executed if it's a custom node with chef-server
+    if !::File.directory?('/opt/opscode') && !node['chef-server']['installed']
 
-      Chef::Log.info("Installing chef services")
+      Chef::Log.info('Installing chef services')
       # install chef-server package
-      dnf_package "redborder-chef-server" do
+      dnf_package 'redborder-chef-server' do
         action :upgrade
         flush_cache [ :before ]
       end
@@ -43,33 +40,36 @@ action :add do
 
       # stop chef-server services
       execute 'Stopping default private-chef-server services' do
-        command ("chef-server-ctl graceful-kill")
+        command 'chef-server-ctl graceful-kill'
       end
 
       # Chef-server installation finished
-      node.default["chef-server"]["installed"] = true
+      node.default['chef-server']['installed'] = true
 
-      #Chef server datastore configuration
-      if !node["chef-server"]["datastore_configured"]
+      # Chef server datastore configuration
+      unless node['chef-server']['datastore_configured']
         # Load Database configuration
-        db_opscode_chef = Chef::DataBagItem.load("passwords", "db_opscode_chef") rescue db_opscode_chef = {}
+        begin
+          db_opscode_chef = data_bag_item('passwords', 'db_opscode_chef')
+        rescue
+          db_opscode_chef = {}
+        end
 
-        if !db_opscode_chef.empty?
-          Chef::Log.info("Configuring Chef-server database")
-          db_host = db_opscode_chef["hostname"]
-          db_port = db_opscode_chef["port"]
-          db_name = db_opscode_chef["database"]
-          db_user = db_opscode_chef["username"]
-          db_pass = db_opscode_chef["pass"]
-          ocid_pass = db_opscode_chef["ocid_pass"]
-          ocbifrost_pass = db_opscode_chef["ocbifrost_pass"]
-          chefmover_pass = db_opscode_chef["chefmover_pass"]
+        unless db_opscode_chef.empty?
+          Chef::Log.info('Configuring Chef-server database')
+          db_host = db_opscode_chef['hostname']
+          db_port = db_opscode_chef['port']
+          db_name = db_opscode_chef['database']
+          db_user = db_opscode_chef['username']
+          db_pass = db_opscode_chef['pass']
+          ocid_pass = db_opscode_chef['ocid_pass']
+          ocbifrost_pass = db_opscode_chef['ocbifrost_pass']
+          chefmover_pass = db_opscode_chef['chefmover_pass']
 
           bash 'update_chef_db' do
             ignore_failure true
-            #only_if { !node["chef-server"]["datastore_configured"] }
             code <<-EOH
-                #Change erchef database configuration
+                # Change erchef database configuration
                 sed -i 's|{db_host,.*|{db_host, \"#{db_host}\"},|' #{chef_config_path}/opscode-erchef/sys.config
                 sed -i 's|{db_port,.*|{db_port, #{db_port}},|' #{chef_config_path}/opscode-erchef/sys.config
                 sed -i 's|{db_name,.*|{db_name, \"#{db_name}\"},|' #{chef_config_path}/opscode-erchef/sys.config
@@ -93,17 +93,21 @@ action :add do
         end
 
         # S3 configuration
-        s3_chef = Chef::DataBagItem.load("passwords", "s3") rescue s3_chef = {}
-        if !s3_chef.empty?
-          Chef::Log.info("Configuring Chef-server cookbook storage")
-          s3_access_key_id = s3_chef["s3_access_key_id"]
-          s3_secret_key_id = s3_chef["s3_secret_key_id"]
-          s3_url= s3_chef["s3_url"]
-          s3_bucket = s3_chef["s3_bucket"]
+        begin
+          s3_chef = data_bag_item('passwords', 's3')
+        rescue
+          s3_chef = {}
+        end
+
+        unless s3_chef.empty?
+          Chef::Log.info('Configuring Chef-server cookbook storage')
+          s3_access_key_id = s3_chef['s3_access_key_id']
+          s3_secret_key_id = s3_chef['s3_secret_key_id']
+          s3_url = s3_chef['s3_url']
+          s3_bucket = s3_chef['s3_bucket']
 
           bash 'update_chef_s3' do
             ignore_failure true
-            #only_if { !node["chef-server"]["datastore_configured"] }
             code <<-EOH
                sed -i 's|{s3_access_key_id,.*|{s3_access_key_id, \"#{s3_access_key_id}\"},|' #{chef_config_path}/opscode-erchef/sys.config
                sed -i 's|{s3_secret_key_id,.*|{s3_secret_key_id, \"#{s3_secret_key_id}\"},|' #{chef_config_path}/opscode-erchef/sys.config
@@ -115,7 +119,7 @@ action :add do
           end
         end
 
-        node.default["chef-server"]["datastore_configured"] = true
+        node.default['chef-server']['datastore_configured'] = true
       end
 
       # Replace chef-server SV init script for systemd scripts
@@ -124,16 +128,16 @@ action :add do
         command 'chef-server-ctl stop'
       end
 
-      # Delete symbolic links of chef-server SV scripts
-      node["chef-server"]["services_list"].each do |ln_file|
+      # Delete symbolic links of chef-server SV scripts
+      node['chef-server']['services_list'].each do |ln_file|
         link "/opt/opscode/service/#{ln_file}" do
           action :delete
         end
       end
 
       if chef_active
-        node["chef-server"]["chef_middleware"].each do |srv|
-          if srv.include? "opscode"
+        node['chef-server']['chef_middleware'].each do |srv|
+          if srv.include?('opscode')
             service srv do
               action :start
             end
@@ -145,36 +149,35 @@ action :add do
         end
         if postgresql
           # chef-services restart required (with opscode-postgresql)
-          execute "Restart chef-server services" do
+          execute 'Restart chef-server services' do
             command 'for i in `ls /opt/opscode/sv/ | sed "s/opscode-//g"`;do systemctl restart opscode-$i;done'
           end
         else
           # chef-services restart required (without opscode-postgresql)
-          execute "Restart chef-server services" do
+          execute 'Restart chef-server services' do
             command 'for i in `ls /opt/opscode/sv/ | sed "s/opscode-//g | grep -v postgresql"`;do systemctl restart opscode-$i;done'
           end
         end
       end
     else
-      node.default["chef-server"]["installed"] = true
-      node.default["chef-server"]["datastore_configured"] = true
+      node.default['chef-server']['installed'] = true
+      node.default['chef-server']['datastore_configured'] = true
     end
 
-#TODO: Chef services configuration (erchef, etc...)
-    
+    # TODO: Chef services configuration (erchef, etc...)
     if postgresql
-     # call to postgresql resource
-     chef_server_postgresql "Postgresql configuration" do
-       memory postgresql_memory
-       chef_active false
-       srmode "master"
-       netsync netsync
-       virtual_ip postgresql_vip
-       action :add
-     end
+      # call to postgresql resource
+      chef_server_postgresql 'Postgresql configuration' do
+        memory postgresql_memory
+        chef_active false
+        srmode 'master'
+        netsync netsync
+        virtual_ip postgresql_vip
+        action :add
+      end
     end
 
-    Chef::Log.info("Chef-server cookbook has been processed")
+    Chef::Log.info('Chef-server cookbook has been processed')
   rescue => e
     Chef::Log.error(e.message)
   end
@@ -182,8 +185,7 @@ end
 
 action :remove do
   begin
-    # TODO
-    Chef::Log.info("Chef-server cookbook has been processed")
+    Chef::Log.info('Chef-server cookbook has been processed')
   rescue => e
     Chef::Log.error(e.message)
   end
@@ -193,21 +195,21 @@ action :register do
   begin
     ipaddress = new_resource.ipaddress
     consul_servers = system('serf members -tag consul=ready | grep consul=ready &> /dev/null')
-    if !node["chef-server"]["registered"] and consul_servers
+    unless node['chef-server']['registered'] && consul_servers
       query = {}
-      query["ID"] = "erchef-#{node["hostname"]}"
-      query["Name"] = "erchef"
-      query["Address"] = ipaddress
-      query["Port"] = 4443
+      query['ID'] = "erchef-#{node['hostname']}"
+      query['Name'] = 'erchef'
+      query['Address'] = ipaddress
+      query['Port'] = 4443
       json_query = Chef::JSONCompat.to_json(query)
 
       execute 'Register service in consul' do
-         command "curl -X PUT http://localhost:8500/v1/agent/service/register -d '#{json_query}' &>/dev/null"
-         action :nothing
+        command "curl -X PUT http://localhost:8500/v1/agent/service/register -d '#{json_query}' &>/dev/null"
+        action :nothing
       end.run_action(:run)
 
-      node.normal["chef-server"]["registered"] = true
-      Chef::Log.info("Chef services has been registered to consul")
+      node.normal['chef-server']['registered'] = true
+      Chef::Log.info('Chef services has been registered to consul')
     end
   rescue => e
     Chef::Log.error(e.message)
@@ -217,14 +219,14 @@ end
 action :deregister do
   begin
     consul_servers = system('serf members -tag consul=ready | grep consul=ready &> /dev/null')
-    if node["chef-server"]["registered"] and consul_servers
+    if node['chef-server']['registered'] && consul_servers
       execute 'Deregister service in consul' do
-        command "curl -X PUT http://localhost:8500/v1/agent/service/deregister/erchef-#{node["hostname"]} &>/dev/null"
+        command "curl -X PUT http://localhost:8500/v1/agent/service/deregister/erchef-#{node['hostname']} &>/dev/null"
         action :nothing
       end.run_action(:run)
 
-      node.normal["chef-server"]["registered"] = false
-      Chef::Log.info("Chef services has been deregistered to consul")
+      node.normal['chef-server']['registered'] = false
+      Chef::Log.info('Chef services has been deregistered to consul')
     end
   rescue => e
     Chef::Log.error(e.message)
