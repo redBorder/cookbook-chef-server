@@ -1,4 +1,14 @@
-# chef-server CHANGELOG
+cookbook-chef-server CHANGELOG
+===============
+
+## 1.0.7
+
+
+  - Miguel Negron
+    - [7602d84] lint resources
+    - [a56d9d7] lint recipes
+    - [4fc36e0] lint providers
+    - [537dffe] lint attributes
 
 ## 0.0.1
 - [cjmateos] - 3ba8f0e Fix in providers/config.rb
