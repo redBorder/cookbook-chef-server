@@ -35,7 +35,7 @@ action :add do
 
       # chef-server reconfigure
       execute 'Configuring chef-server' do
-        command '/usr/bin/chef-server-ctl reconfigure &>> /root/.install-chef-server.log'
+        command '/usr/bin/chef-server-ctl reconfigure --chef-license=accept &>> /root/.install-chef-server.log'
       end
 
       # stop chef-server services
