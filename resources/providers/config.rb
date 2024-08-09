@@ -38,6 +38,15 @@ action :add do
         command '/usr/bin/chef-server-ctl reconfigure --chef-license=accept &>> /root/.install-chef-server.log'
       end
 
+      file '/etc/opscode/private-chef-secrets.json' do
+        owner 'opscode'
+        group 'opscode'
+        mode '0600'
+        action :create
+        only_if { ::File.exist?('/etc/opscode/private-chef-secrets.json') }
+        notifies :restart, 'service[opscode-erchef]', :immediately
+      end
+
       # stop chef-server services
       execute 'Stopping default private-chef-server services' do
         command 'chef-server-ctl graceful-kill'
