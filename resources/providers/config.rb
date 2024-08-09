@@ -44,7 +44,7 @@ action :add do
         mode '0600'
         action :create
         only_if { ::File.exist?('/etc/opscode/private-chef-secrets.json') }
-        notifies :restart, 'service[opscode-erchef]', :immediately
+        # notifies :restart, 'service[opscode-erchef]', :immediately # TODO: Check if this was needed or not
       end
 
       # stop chef-server services
