@@ -1,6 +1,14 @@
 cookbook-chef-server CHANGELOG
 ===============
 
+## 1.0.8
+
+  - Miguel Negron
+    - [efe65ea] Give correct permissions to crt file
+    - [5bd1cef] Add permissions for private-chef-secrets.json
+    - [04a83e9] Add permissions for private-chef-secrets.json
+    - [d52719b] Add accept license
+
 ## 1.0.7
 
 
