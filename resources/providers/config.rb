@@ -42,7 +42,7 @@ action :add do
         owner 'opscode'
         group 'opscode'
         mode '0600'
-        action :create
+        action :touch
         only_if { ::File.exist?('/etc/opscode/private-chef-secrets.json') }
         # notifies :restart, 'service[opscode-erchef]', :immediately # TODO: Check if this was needed or not
       end
@@ -174,13 +174,12 @@ action :add do
     end
 
     # Change default permissions of crt file needed by webui (644)
-    if ::File.exist?("/root/.chef/trusted_certs/#{node['hostname']}.crt")
-      file "/root/.chef/trusted_certs/#{node['hostname']}.crt" do
-        mode '0644'
-        owner 'root'
-        group 'root'
-        action :touch
-      end
+    file "/root/.chef/trusted_certs/#{node['hostname']}.crt" do
+      owner 'root'
+      group 'root'
+      mode '0644'
+      action :touch
+      only_if { ::File.exist?("/root/.chef/trusted_certs/#{node['hostname']}.crt") }
     end
 
     # TODO: Chef services configuration (erchef, etc...)
