@@ -173,6 +173,16 @@ action :add do
       node.default['chef-server']['datastore_configured'] = true
     end
 
+    # Change default permissions of crt file needed by webui (644)
+    if ::File.exist?("/root/.chef/trusted_certs/#{node['hostname']}.crt")
+      file "/root/.chef/trusted_certs/#{node['hostname']}.crt" do
+        mode '0644'
+        owner 'root'
+        group 'root'
+        action :touch
+      end
+    end
+
     # TODO: Chef services configuration (erchef, etc...)
     if postgresql
       # call to postgresql resource
