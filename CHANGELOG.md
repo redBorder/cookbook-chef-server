@@ -1,9 +1,27 @@
 cookbook-chef-server CHANGELOG
 ===============
 
+## 1.0.9
+
+  - Miguel Negrón
+    - [c52ca68] Add pre and postun to clean the cookbook
+    - [6628610] Normalize code
+    - [35bf776] Bump version
+    - [efe65ea] Give correct permissions to crt file
+    - [5bd1cef] Add permissions for private-chef-secrets.json
+    - [04a83e9] Add permissions for private-chef-secrets.json
+    - [d52719b] Add accept license
+  - Miguel Negrón
+    - [6628610] Normalize code
+    - [35bf776] Bump version
+    - [efe65ea] Give correct permissions to crt file
+    - [5bd1cef] Add permissions for private-chef-secrets.json
+    - [04a83e9] Add permissions for private-chef-secrets.json
+    - [d52719b] Add accept license
+
 ## 1.0.8
 
-  - Miguel Negron
+  - Miguel Negrón
     - [efe65ea] Give correct permissions to crt file
     - [5bd1cef] Add permissions for private-chef-secrets.json
     - [04a83e9] Add permissions for private-chef-secrets.json
@@ -12,7 +30,7 @@ cookbook-chef-server CHANGELOG
 ## 1.0.7
 
 
-  - Miguel Negron
+  - Miguel Negrón
     - [7602d84] lint resources
     - [a56d9d7] lint recipes
     - [4fc36e0] lint providers
