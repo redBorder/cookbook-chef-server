@@ -157,34 +157,6 @@ action :add do
           end
         end
         if postgresql
-          begin
-            postgresql_vip = data_bag_item('rBglobal', 'ipvirtual-internal-postgresql')
-          rescue
-            postgresql_vip = {}
-          end
-
-          ruby_block 'add_postgresql_hosts' do
-            block do
-              hosts_file = '/etc/hosts'
-              master_ip = nil
-              if postgresql_vip['ip']
-                master_ip = postgresql_vip['ip']
-              else
-                serf_output = `serf members`
-                master_node = serf_output.lines.find { |line| line.include?('postgresql=ready') && line.include?('alive') }
-                master_ip = master_node.split[1].split(':')[0] if master_node
-              end
-              if master_ip
-                hosts_content = ::File.read(hosts_file).lines.reject { |line| line.include?('postgresql') }
-                hosts_content << "#{master_ip} master.postgresql.service\n"
-                ::File.open(hosts_file, 'w') do |file|
-                  file.puts hosts_content
-                end
-              end
-            end
-            action :run
-          end
-
           # chef-services restart required (with opscode-postgresql)
           execute 'Restart chef-server services' do
             command 'for i in `ls /opt/opscode/sv/ | sed "s/opscode-//g"`;do systemctl restart opscode-$i;done'
