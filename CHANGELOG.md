@@ -1,6 +1,11 @@
 cookbook-chef-server CHANGELOG
 ===============
 
+## 1.0.10
+
+  - Rafa Gómez
+    - [39c7b0e] Changing chef_config_path to /opt/opscode/embedded/service
+
 ## 1.0.9
 
   - Miguel Negrón
