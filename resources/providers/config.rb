@@ -22,7 +22,6 @@ action :add do
       # install chef-server package
       dnf_package 'redborder-chef-server' do
         action :upgrade
-        flush_cache [ :before ]
       end
 
       execute 'Set 4443 as chef proxy SSL default port' do
