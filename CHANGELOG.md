@@ -1,6 +1,11 @@
 cookbook-chef-server CHANGELOG
 ===============
 
+## 1.0.11
+
+  - nilsver
+    - [c4b46a1] remove flush cache
+
 ## 1.0.10
 
   - Rafa Gómez
