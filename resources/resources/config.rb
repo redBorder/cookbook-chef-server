@@ -12,3 +12,4 @@ attribute :netsync, kind_of: String, default: '10.0.203.0/24'
 attribute :chef_active, kind_of: [TrueClass, FalseClass], default: true
 attribute :chef_config_path, kind_of: String, default: '/opt/opscode/embedded/service'
 attribute :ipaddress, kind_of: String
+attribute :s3_secrets, kind_of: Hash, default: {}
