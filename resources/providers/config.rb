@@ -9,6 +9,7 @@ action :add do
     postgresql_vip = new_resource.postgresql_vip
     netsync = new_resource.netsync
     chef_config_path = new_resource.chef_config_path
+    s3_secrets = new_resource.s3_secrets
 
     link '/root/chef' do
       to '/var/chef'
@@ -100,19 +101,12 @@ action :add do
           end
         end
 
-        # S3 configuration
-        begin
-          s3_chef = data_bag_item('passwords', 's3')
-        rescue
-          s3_chef = {}
-        end
-
-        unless s3_chef.empty?
+        unless s3_secrets.empty?
           Chef::Log.info('Configuring Chef-server cookbook storage')
-          s3_access_key_id = s3_chef['s3_access_key_id']
-          s3_secret_key_id = s3_chef['s3_secret_key_id']
-          s3_url = s3_chef['s3_url']
-          s3_bucket = s3_chef['s3_bucket']
+          s3_access_key_id = s3_secrets['s3_access_key_id']
+          s3_secret_key_id = s3_secrets['s3_secret_key_id']
+          s3_url           = s3_secrets['s3_url']
+          s3_bucket        = s3_secrets['s3_bucket']
 
           bash 'update_chef_s3' do
             ignore_failure true
