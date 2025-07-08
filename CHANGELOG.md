@@ -1,6 +1,11 @@
 cookbook-chef-server CHANGELOG
 ===============
 
+## 1.0.12
+
+  - Rafael Gomez
+    - [9f77940] Add s3_secrets attribute to Chef-server config resource
+
 ## 1.0.11
 
   - nilsver
