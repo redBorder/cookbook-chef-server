@@ -1,6 +1,11 @@
 cookbook-chef-server CHANGELOG
 ===============
 
+## 1.0.13
+
+  - jnavarrorb
+    - [8c8d0a2] Remove executable permissions on non-executable files
+
 ## 1.0.12
 
   - Rafael Gomez
