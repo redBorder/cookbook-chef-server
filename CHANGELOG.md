@@ -1,6 +1,11 @@
 cookbook-chef-server CHANGELOG
 ===============
 
+## 1.0.14
+
+  - manegron
+    - [f5ce0f6] Upload cookbook only if opscode-erchef is active
+
 ## 1.0.13
 
   - jnavarrorb
