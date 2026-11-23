@@ -11,6 +11,15 @@ action :add do
     chef_config_path = new_resource.chef_config_path
     s3_secrets = new_resource.s3_secrets
 
+    # Keep chef-server-ctl working on nodes where RVM exports its Ruby environment
+    cookbook_file '/usr/local/bin/chef-server-ctl' do
+      source 'chef-server-ctl-wrapper.sh'
+      cookbook 'chef-server'
+      owner 'root'
+      group 'root'
+      mode '0755'
+    end
+
     link '/root/chef' do
       to '/var/chef'
       action ::File.directory?('/var/chef') ? :create : :delete
@@ -35,7 +44,7 @@ action :add do
 
       # chef-server reconfigure
       execute 'Configuring chef-server' do
-        command '/usr/bin/chef-server-ctl reconfigure --chef-license=accept &>> /root/.install-chef-server.log'
+        command '/usr/local/bin/chef-server-ctl reconfigure --chef-license=accept &>> /root/.install-chef-server.log'
       end
 
       file '/etc/opscode/private-chef-secrets.json' do
@@ -49,7 +58,7 @@ action :add do
 
       # stop chef-server services
       execute 'Stopping default private-chef-server services' do
-        command 'chef-server-ctl graceful-kill'
+        command '/usr/local/bin/chef-server-ctl graceful-kill'
       end
 
       # Chef-server installation finished
@@ -127,7 +136,7 @@ action :add do
       # Replace chef-server SV init script for systemd scripts
       # Stop current services
       execute 'Stopping default private-chef-server services' do
-        command 'chef-server-ctl stop'
+        command '/usr/local/bin/chef-server-ctl stop'
       end
 
       # Delete symbolic links of chef-server SV scripts
