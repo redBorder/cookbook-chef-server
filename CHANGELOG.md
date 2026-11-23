@@ -1,6 +1,11 @@
 cookbook-chef-server CHANGELOG
 ===============
 
+## 2.0.0
+
+  - manegron
+    - [c1e6bb7] Add chef-server-ctl wrapper
+
 ## 1.0.14
 
   - manegron
